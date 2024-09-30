@@ -1,12 +1,14 @@
 from flask import Flask, jsonify
-import flask
+from flask_cors import CORS  # Importar CORS
 import mysql.connector
 
-app = flask(__name__)
+app = Flask(__name__)
 
-@app.route("/pais")
+# Habilitar CORS para todas las rutas
+CORS(app)
+
+@app.route("/api/pais")
 def pais():
-
     # Configura la conexión
     config = {
         'user': 'reservas',
@@ -34,9 +36,14 @@ def pais():
         lista = [dict(zip(columnas, fila)) for fila in resultados]
 
     except mysql.connector.Error as err:
+        print(f"Error: {err}")
+        return jsonify({"error": str(err)}), 500
     finally:
         # Cierra el cursor y la conexión
-        cursor.close()
-        conn.close()
+        try:
+            cursor.close()
+            conn.close()
+        except:
+            pass  # No hacer nada si el cierre falla
 
-    return jsonify(resultados)
+    return jsonify(lista)  # Devuelve la lista como JSON
