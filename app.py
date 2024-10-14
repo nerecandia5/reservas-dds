@@ -5,9 +5,9 @@ import mysql.connector
 app = Flask(__name__)
 
 # Habilitar CORS para todas las rutas
-#CORS(app)
+CORS(app)
 
-@app.route("/api/pais/<int:id>")
+@app.route("/api/pais")
 def pais():
     # Configura la conexión
     config = {
@@ -97,3 +97,4 @@ def detalle_establecimiento(id):
 
 
  
+
