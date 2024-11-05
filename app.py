@@ -9,7 +9,7 @@ CORS(app)
 
 @app.route("/api/pais")
 def pais():
-    # Configura la conexión
+    # Configura la conexión a la base de datos
     config = {
         'user': 'reservas',
         'password': 'reservas111',
@@ -18,35 +18,36 @@ def pais():
     }
 
     try:
-        # Crea la conexión
+        # Conectar a la base de datos MySQL
         conn = mysql.connector.connect(**config)
         print("Conexión exitosa")
 
-        # Crea un cursor
+        # Crear un cursor
         cursor = conn.cursor()
 
-        # Ejecuta la consulta SELECT
+        # Ejecutar la consulta SELECT
         cursor.execute("SELECT * FROM Pais")
 
-        # Obtiene los resultados y los nombres de las columnas
+        # Obtener los resultados y los nombres de las columnas
         columnas = [column[0] for column in cursor.description]
         resultados = cursor.fetchall()
 
-        # Convierte las tuplas en diccionarios
+        # Convertir los resultados a diccionarios
         lista = [dict(zip(columnas, fila)) for fila in resultados]
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
         return jsonify({"error": str(err)}), 500
     finally:
-        # Cierra el cursor y la conexión
-        try:
-            cursor.close()
-            conn.close()
-        except:
-            pass  # No hacer nada si el cierre falla
+        # Cerrar la conexión y el cursor
+        cursor.close()
+        conn.close()
 
-    return jsonify(lista)  # Devuelve la lista como JSON
+    # Devolver los resultados como JSON
+    return jsonify(lista)
+
+if __name__ == "__main__":
+    app.run(debug=True)
 
 
 
@@ -84,12 +85,6 @@ def establecimientos():
     else:
         return jsonify({"error": "Establecimiento no encontrado"}), 404
 
-# Iniciar la aplicación
-app.run(debug=True)
-
-
-
-
 
 @app.route("/api/establecimientos/<int:id>", methods=['GET'])
 def obtener_establecimiento(id):
@@ -124,75 +119,18 @@ def obtener_establecimiento(id):
     else:
         return jsonify({"error": "Establecimiento no encontrado"}), 404
 
-# Iniciar la aplicación
-app.run(debug=True)
 
-
-from flask import Flask, jsonify, request
-import mysql.connector
-from mysql.connector import Error
-
-app = Flask(__name__)
-app.config["JSON_AS_ASCII"] = False
-
+@app.route("/api/establecimientos/<int:id>", methods=['DELETE'])
+def eliminar_establecimiento(id):
 # Configuración de la base de datos
-config = {
+    config = {
     'user': 'reservas',
     'password': 'reservas111',
     'host': '10.9.120.5',
     'database': 'reservastheloft'
 }
 
-@app.route("/api/establecimientos/<int:id>", methods=['DELETE'])
-def eliminar_establecimiento(id):
-    try:
-        # Crea la conexión
-        conn = mysql.connector.connect(**config)
-        print("Conexión exitosa")
 
-        # Crea un cursor
-        cursor = conn.cursor()
-
-        # Consulta para eliminar el establecimiento por ID
-        query = "DELETE FROM establecimientos WHERE id = %s"
-        cursor.execute(query, (id,))
-        conn.commit()  # Confirma la transacción
-
-        # Verifica si se eliminó algún registro
-        if cursor.rowcount > 0:
-            return jsonify({"message": "Establecimiento eliminado exitosamente"}), 200
-        else:
-            return jsonify({"error": "Establecimiento no encontrado"}), 404
-
-    except Error as e:
-        return jsonify({"error": str(e)}), 500
-
-    finally:
-        if conn.is_connected():
-            cursor.close()
-            conn.close()  # Cierra la conexión
-
-# Iniciar la aplicación
-app.run(debug=True)
-
-
-from flask import Flask, jsonify, request
-import mysql.connector
-from mysql.connector import Error
-
-app = Flask(__name__)
-app.config["JSON_AS_ASCII"] = False
-
-# Configuración de la base de datos
-config = {
-    'user': 'reservas',
-    'password': 'reservas111',
-    'host': '10.9.120.5',
-    'database': 'reservastheloft'
-}
-
-@app.route("/api/establecimientos/<int:id>", methods=['DELETE'])
-def eliminar_establecimiento(id):
     try:
         # Crea la conexión
         conn = mysql.connector.connect(**config)
@@ -220,13 +158,21 @@ def eliminar_establecimiento(id):
             cursor.close()
             conn.close()  # Cierra la conexión
 
+
 @app.route("/api/pais", methods=['POST'])
 def insertar_pais():
     data = request.get_json()  # Obtener los datos del cuerpo de la solicitud
     nombre = data.get('Nombre')
-
+# Configuración de la base de datos
+    config = {
+    'user': 'reservas',
+    'password': 'reservas111',
+    'host': '10.9.120.5',
+    'database': 'reservastheloft'
+}
     if not nombre:
         return jsonify({"error": "El nombre del país es requerido"}), 400
+
 
     try:
         # Crea la conexión
@@ -251,7 +197,5 @@ def insertar_pais():
             cursor.close()
             conn.close()  # Cierra la conexión
 
-# Iniciar la aplicación
-app.run(debug=True)
 
 
