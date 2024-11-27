@@ -1,4 +1,4 @@
-from flask import Flask, jsonify,request
+from flask import Flask, jsonify,request, render_template
 from flask_cors import CORS  # Importar CORS
 import mysql.connector
 from mysql.connector import Error
@@ -6,7 +6,39 @@ app = Flask(__name__)
 
 # Habilitar CORS para todas las rutas
 CORS(app)
+#Paso1: Todos los def que ya teniamos los tenemos que rearmar y en el return devolver,
+#render_template
+#Crear la carpeta templates(adentro files html)
+#Armamos Links
+#-------------------------------------------------
+#----------------------NUEVAS SENTENCIAS----------
+@app.route('/cancion')
+def cancion():
+    config = {
+        'user': 'reservas',
+        'password': 'reservas111',
+        'host': '10.9.120.5',
+        'database': 'reservastheloft'
+    }
 
+        # Conectar a la base de datos MySQL
+    conn = mysql.connector.connect(**config)
+    print("Conexión exitosa")
+
+        # Crear un cursor
+    cursor = conn.cursor()
+    consulta = """SELECT * FROM Pais"""
+
+    resultado = cursor.execute(consulta)
+    lista_resultados = resultado.fetchall()
+    return render_template('pais.html', pais=lista_resultados)
+
+
+
+
+
+#------------------------------------------------------
+#------------------------------------------------------
 @app.route("/api/pais")
 def pais():
     # Configura la conexión a la base de datos

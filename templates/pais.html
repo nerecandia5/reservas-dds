@@ -1,0 +1,11 @@
+<head>
+  <title>Lista de Actores</title>
+</head>
+<body>
+  <h1>Actortes</h1>
+  <ul>
+    {% for c in cancion %}
+    <li>{{ c['Name'] }}</li>
+    {% endfor %}
+  </ul>
+</body>
